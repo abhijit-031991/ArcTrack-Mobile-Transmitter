@@ -25,13 +25,13 @@
 
 //   WiFi.mode(WIFI_OFF);
   
-// //   if (!LoRa.begin(433E6)) {
-// //     Serial.println("Starting LoRa failed!");
-// //     while (1);
-// //   }
-// // //   LoRa.setSpreadingFactor(7);
-// //   Serial.println("SYSTEM READY");
-// //   // LoRa.onReceive(onReceive);  
+//   if (!LoRa.begin(433E6)) {
+//     Serial.println("Starting LoRa failed!");
+//     while (1);
+//   }
+// //   LoRa.setSpreadingFactor(7);
+//   Serial.println("SYSTEM READY");
+//   // LoRa.onReceive(onReceive);  
     
 // }
 

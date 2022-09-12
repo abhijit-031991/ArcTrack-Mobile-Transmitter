@@ -8,7 +8,7 @@
 #include <ArduinoJson.h>
 
 #define SCK     18    // GPIO5  -- SX1278's SCK
-#define MISO    19   // GPIO19 -- SX1278's MISnO
+#define MISO    19   // GPIO19 -- SX1278's MISO
 #define MOSI    23   // GPIO27 -- SX1278's MOSI
 #define SS      5   // GPIO18 -- SX1278's CS
 #define RST     21   // GPIO14 -- SX1278's RESET
@@ -36,7 +36,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   SerialBT.register_callback(callback);
-  SerialBT.begin("Arc-Track-10113");
+  SerialBT.begin("Arc-Track-10114");
   SPI.begin(SCK,MISO,MOSI,SS);
   LoRa.setPins(SS,RST,DI0);
 
@@ -47,7 +47,7 @@ void setup() {
     while (1);
   }
   
-  LoRa.setSpreadingFactor(12);
+  LoRa.setSpreadingFactor(7);
   // LoRa.setSignalBandwidth(41.7E3);
   // LoRa.setGain(6);
   Serial.println("SYSTEM READY");
@@ -409,7 +409,7 @@ void loop(){
     SerialBT.println(dat);
     Serial.println(dat);
   }  
-  if (x == 35) /// DevType 105 - Data
+  if (x == 31) /// DevType 105 - Data
   {
     String dat;
     struct data{
@@ -417,8 +417,7 @@ void loop(){
         uint16_t locktime;
         float lat;
         float lng;
-        float t;
-        float p;
+        double pres;
         float x;
         float y;
         float z;
@@ -435,8 +434,7 @@ void loop(){
       doc[F("Lng")] = d.lng;
       doc[F("LckTm")] = d.locktime;
       doc[F("hdop")] = d.hdop;
-      doc[F("Temp")] = d.t;
-      doc[F("Pres")] = d.p;
+      doc[F("Pres")] = d.pres;
       doc[F("x")] = d.x;
       doc[F("y")] = d.y;
       doc[F("z")] = d.z;
