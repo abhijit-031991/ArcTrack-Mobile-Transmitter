@@ -36,7 +36,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   SerialBT.register_callback(callback);
-  SerialBT.begin("Arc-Track-10114");
+  SerialBT.begin("Arc-Track-BaseStation-101");
   SPI.begin(SCK,MISO,MOSI,SS);
   LoRa.setPins(SS,RST,DI0);
 
