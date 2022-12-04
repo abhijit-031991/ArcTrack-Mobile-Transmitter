@@ -1,4 +1,5 @@
 #define ARDUINOJSON_USE_LONG_LONG 1
+
 #include <Arduino.h>
 #include <BluetoothSerial.h>
 #include <WiFi.h>
@@ -6,6 +7,7 @@
 #include <Wire.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>
+#include <permaDefs.h>
 
 #define SCK     18    // GPIO5  -- SX1278's SCK
 #define MISO    19   // GPIO19 -- SX1278's MISO
@@ -36,7 +38,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   SerialBT.register_callback(callback);
-  SerialBT.begin("Arc-Track-Yagi-102");
+  SerialBT.begin(tagID);
   SPI.begin(SCK,MISO,MOSI,SS);
   LoRa.setPins(SS,RST,DI0);
 
@@ -47,7 +49,7 @@ void setup() {
     while (1);
   }
   
-  LoRa.setSpreadingFactor(7);
+  LoRa.setSpreadingFactor(12);
   // LoRa.setSignalBandwidth(41.7E3);
   // LoRa.setGain(6);
   Serial.println("SYSTEM READY");
@@ -64,7 +66,7 @@ void loop(){
     Serial.println(dat);
     DynamicJsonDocument doc(350);
     deserializeJson(doc, dat);    
-    if (dat.length() > 0 && dat.length() <10)
+    if (dat.length() > 0 && dat.indexOf("Bat"))
     {
       int sensorValue = analogRead(33);
       float voltage = (sensorValue * 3.3 ) / (4095);
@@ -72,7 +74,7 @@ void loop(){
       Serial.print(voltage); Serial.println(" V");
     }
     
-    if (dat.length() < 35)
+    if (dat.length() < 35 && dat.length() > 10)
     {
       struct req{
       uint16_t tag;
@@ -304,7 +306,7 @@ void loop(){
   {
     Serial.println(x);
   }
-  
+
   
   if (x == 15) /// DevType 101 - Data
   {
@@ -360,7 +362,7 @@ void loop(){
       SerialBT.println(dat);
       Serial.println(dat);
   }
-  if (x == 3) /// Universal Ping - Request/Response
+  if (x == 3)  /// Universal Request Ping - Request/Response
   {
     String dat;
     struct resp{
@@ -408,7 +410,37 @@ void loop(){
     serializeJson(doc, dat);
     SerialBT.println(dat);
     Serial.println(dat);
-  }  
+  } 
+  if (x == 14) /// DevType 101/105/107 - Ping
+  {
+    Serial.println(F("Received Ping"));
+    String dat;
+    struct ping{
+      uint16_t ta;
+      uint16_t cnt;
+      float la;
+      float ln;
+      uint8_t devtyp;
+      bool mortality;
+    } __attribute__((__packed__)) p;
+
+    while (LoRa.available())
+    {
+      LoRa.readBytes((uint8_t*)&p, x);
+    }
+
+    StaticJsonDocument<256> doc;
+    doc[F("ID")] = p.ta;
+    doc[F("Lat")] = String(p.la, 6);
+    doc[F("Lng")] = String(p.ln, 6);
+    doc[F("DTyp")] = p.devtyp;
+    doc[F("cnt")] = p.cnt;
+    doc[F("RSSI")] = LoRa.packetRssi();
+    doc[F("Mort")] = p.mortality;
+    serializeJson(doc, dat);
+    SerialBT.println(dat);
+    Serial.println(dat);
+  } 
   if (x == 31) /// DevType 105 - Data
   {
     String dat;
