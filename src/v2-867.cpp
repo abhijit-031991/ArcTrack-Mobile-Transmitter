@@ -64,16 +64,18 @@ void loop(){
     String dat;
     dat = SerialBT.readString();
     Serial.println(dat);
-    DynamicJsonDocument doc(350);
-    deserializeJson(doc, dat);    
-    if (dat.length() > 0 && dat.indexOf("Bat"))
+        
+    if (dat.length() <= 5)
     {
       int sensorValue = analogRead(33);
       float voltage = (sensorValue * 3.3 ) / (4095);
       SerialBT.print(voltage*2); SerialBT.println(" V");
       Serial.print(voltage); Serial.println(" V");
     }
-    
+
+    DynamicJsonDocument doc(350);
+    deserializeJson(doc, dat);
+
     if (dat.length() < 35 && dat.length() > 10)
     {
       struct req{
